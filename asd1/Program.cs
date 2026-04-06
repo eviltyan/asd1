@@ -20,9 +20,6 @@ namespace SubstringSearchAlgorithms
         }
     }
 
-    /// <summary>
-    /// Класс для анализа алгоритмов поиска подстроки
-    /// </summary>
     public class SubstringSearchAnalyzer
     {
         private readonly Random _random = new Random(42); // Фиксированное зерно для воспроизводимости
@@ -77,33 +74,26 @@ namespace SubstringSearchAlgorithms
             // Дополнительный эксперимент для демонстрации O(n*m)
             results.AddRange(DemonstrateComplexity());
 
-            // Вывод результатов
+
             PrintResults(results);
         }
 
-        /// <summary>
-        /// Чтение текста из файла
-        /// </summary>
+
         private string GetTextFromFile(string filename)
         {
-            // Проверяем существование файла
             if (!File.Exists(filename))
             {
-                // Если файл не найден, создаем тестовый файл с образцом текста
                 CreateSampleTextFile(filename);
                 Console.WriteLine($"Создан файл-образец: {filename}");
             }
 
-            // Читаем весь текст из файла
             string text = File.ReadAllText(filename, Encoding.UTF8);
 
             Console.WriteLine($"Загружено {text.Length} символов из файла {filename}");
             return text;
         }
 
-        /// <summary>
-        /// Создание образца текстового файла, если он не существует
-        /// </summary>
+
         private void CreateSampleTextFile(string filename)
         {
             string sampleText = @"It is a truth universally acknowledged, that a single man in possession of a good fortune, 
@@ -201,14 +191,13 @@ How vexingly quick daft zebras jump!";
                     result = RunExperiment($"Сложность O(n*m) n={n}", text, pattern);
                     results.Add(result);
                 }
-                
 
                 Console.WriteLine($"n={n}, время наивного: {result.NaiveTimeMs:F2} мс, " +
                                 $"отношение к n*m: {result.NaiveTimeMs / (n * pattern.Length / 1000000.0):F2}");
             }
-
             return results;
         }
+
 
         private ExperimentResult RunExperiment(string name, string text, string pattern)
         {
@@ -221,16 +210,27 @@ How vexingly quick daft zebras jump!";
             // Разогрев JIT
             WarmUp(naive, kmp, rabinKarp, text, pattern);
 
-            // Измерение времени
-            var naiveTime = MeasureTime(() => naive.Search(text, pattern));
-            var kmpTime = MeasureTime(() => kmp.Search(text, pattern));
-            var rabinKarpTime = MeasureTime(() => rabinKarp.Search(text, pattern));
+            // Результаты
+            List<int> naiveResult = null;
+            List<int> kmpResult = null;
+            List<int> rabinKarpResult = null;
 
-            // Получение результатов
-            var naiveResult = naive.Search(text, pattern).ToList();
-            var kmpResult = kmp.Search(text, pattern).ToList();
-            var rabinKarpResult = rabinKarp.Search(text, pattern).ToList();
+            // Измерение времени + запись результатов
+            int iter = text.Length > 50000 ? 3 : 10;
+            var naiveTime = MeasureTime(() => {
+                naiveResult = naive.Search(text, pattern);
+                return naiveResult;
+            }, iter);
+            var kmpTime = MeasureTime(() => { 
+                kmpResult = kmp.Search(text, pattern); 
+                return kmpResult;
+            }, iter);
+            var rabinKarpTime = MeasureTime(() => {
+                rabinKarpResult = rabinKarp.Search(text, pattern);
+                return rabinKarpResult;
+            }, iter);
 
+            
             // Проверка корректности
             if (!naiveResult.SequenceEqual(kmpResult) || !naiveResult.SequenceEqual(rabinKarpResult))
             {
@@ -263,10 +263,19 @@ How vexingly quick daft zebras jump!";
             int totalLength = 0;
             int maxLength = Math.Min(pattern.Length, text.Length);
 
-            for (int i = 1; i <= maxLength; i++)
+            for (int i = 1; i <= maxLength; i++) // Каждый раз создавалась новая строка и получалось O(n²) - это плохо
             {
-                string suffix = text.Substring(text.Length - i, i);
-                if (pattern.StartsWith(suffix))
+                bool match = true;
+                for (int j = 0; j < i; j++)
+                {
+                    if (text[text.Length - i + j] != pattern[j])
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (match)
                 {
                     count++;
                     totalLength += i;
@@ -289,12 +298,18 @@ How vexingly quick daft zebras jump!";
             rabinKarp.Search(text, pattern).ToList();
         }
 
-        private double MeasureTime(Func<List<int>> action)
+        private double MeasureTime(Func<List<int>> action, int iterations = 5)
         {
-            var sw = Stopwatch.StartNew();
-            var result = action();
-            sw.Stop();
-            return sw.Elapsed.TotalMilliseconds;
+            double total = 0;
+
+            for (int i = 0; i < iterations; i++)
+            {
+                var sw = Stopwatch.StartNew();
+                action();
+                sw.Stop();
+                total += sw.Elapsed.TotalMilliseconds;
+            }
+            return total / iterations;
         }
 
         private string GenerateString(char c, int length)
@@ -330,69 +345,48 @@ How vexingly quick daft zebras jump!";
 
         private void PrintResults(List<ExperimentResult> results)
         {
-            Console.WriteLine("\n" + new string('=', 110));
-            Console.WriteLine("\nРЕЗУЛЬТАТЫ ЭКСПЕРИМЕНТОВ");
-            Console.WriteLine(new string('=', 110));
+            Console.WriteLine("\nРЕЗУЛЬТАТЫ ЭКСПЕРИМЕНТОВ\n");
 
-            Console.WriteLine("\n{0,-35} {1,10} {2,10} {3,12} {4,12} {5,12} {6,10} {7,12} {8,12}",
-                "Эксперимент", "Длина текста", "Длина патт", "Наивный(мс)", "КМП(мс)", "Р-К(мс)", "Вхожд.", "Кол.преф.", "Ср.дл.преф.");
-            Console.WriteLine(new string('-', 120));
-            Console.WriteLine("\n");
+            Console.WriteLine(new string('═', 130));
+            Console.WriteLine($"║ {"Эксперимент",-30} ║ {"n",6} ║ {"m",6} ║ {"Naive",10} ║ {"KMP",10} ║ {"RK",10} ║ {"ускор.",10} ║");
+            Console.WriteLine(new string('═', 130));
 
             foreach (var r in results)
             {
-                Console.WriteLine("{0,-35} {1,10} {2,10} {3,12:F2} {4,12:F2} {5,12:F2} {6,10} {7,12} {8,12:F2}",
-                    r.Name.Length > 35 ? r.Name.Substring(0, 32) + "..." : r.Name,
-                    r.TextLength,
-                    r.PatternLength,
-                    r.NaiveTimeMs,
-                    r.KMPTimeMs,
-                    r.RabinKarpTimeMs,
-                    r.PatternOccurrences,
-                    r.CommonPrefixesCount,
-                    r.AverageCommonPrefixLength);
+                double speedup = r.KMPTimeMs > 0 ? r.NaiveTimeMs / r.KMPTimeMs : 0;
+
+                Console.WriteLine(
+                    $"║ {Trim(r.Name, 30),-30} ║ {r.TextLength,6} ║ {r.PatternLength,6} ║ {r.NaiveTimeMs,10:F2} ║ {r.KMPTimeMs,10:F2} ║ {r.RabinKarpTimeMs,10:F2} ║ {speedup,10:F2} ║"
+                );
             }
 
-            Console.WriteLine(new string('-', 120));
+            Console.WriteLine(new string('═', 130));
 
-            // Анализ производительности
-            Console.WriteLine("\nАНАЛИЗ ПРОИЗВОДИТЕЛЬНОСТИ:");
+            Console.WriteLine("\nАНАЛИЗ:");
             foreach (var r in results)
             {
                 Console.WriteLine($"\n{r.Name}:");
-                Console.WriteLine($"  Наивный vs КМП: {(r.NaiveTimeMs / r.KMPTimeMs):F2}x");
-                Console.WriteLine($"  Наивный vs Р-К: {(r.NaiveTimeMs / r.RabinKarpTimeMs):F2}x");
-
-                // Теоретическая оценка для наивного алгоритма
-                double theoreticalOps = r.TextLength * r.PatternLength / 1_000_000.0; // в миллионах операций
-                Console.WriteLine($"  Теоретическая оценка O(n*m): ~{theoreticalOps:F2} млн операций");
+                Console.WriteLine($"  Naive/KMP = {(r.NaiveTimeMs / r.KMPTimeMs):F2}");
+                Console.WriteLine($"  Naive/RK  = {(r.NaiveTimeMs / r.RabinKarpTimeMs):F2}");
             }
 
-            // Вывод образцов данных
-            Console.WriteLine("\n" + new string('=', 120));
-            Console.WriteLine("ОБРАЗЦЫ ИСПОЛЬЗОВАННЫХ ДАННЫХ:");
-            Console.WriteLine(new string('=', 120));
-
-            foreach (var r in results.Take(3)) // Показываем только первые 3 для краткости
-            {
-                Console.WriteLine($"\n{r.Name}:");
-                Console.WriteLine($"  Текст: {r.TextSample}");
-                Console.WriteLine($"  Паттерн: {r.PatternSample}");
-            }
+        }
+        private string Trim(string text, int maxLength)
+        {
+            return text.Length > maxLength
+                ? text.Substring(0, maxLength - 3) + "..."
+                : text;
         }
     }
+    
 
-    /// <summary>
-    /// Интерфейс для алгоритмов поиска подстроки
-    /// </summary>
+    // Интерфейс для алгоритмов поиска подстроки
     public interface ISubstringSearch
     {
         List<int> Search(string text, string pattern);
     }
 
-    /// <summary>
-    /// Наивный алгоритм поиска подстроки
-    /// </summary>
+
     public class NaiveSubstringSearch : ISubstringSearch
     {
         public List<int> Search(string text, string pattern)
@@ -420,9 +414,7 @@ How vexingly quick daft zebras jump!";
         }
     }
 
-    /// <summary>
-    /// Алгоритм Кнута-Морриса-Пратта
-    /// </summary>
+
     public class KMPSubstringSearch : ISubstringSearch
     {
         public List<int> Search(string text, string pattern)
@@ -463,7 +455,6 @@ How vexingly quick daft zebras jump!";
                     }
                 }
             }
-
             return result;
         }
 
@@ -497,18 +488,15 @@ How vexingly quick daft zebras jump!";
                     }
                 }
             }
-
             return lps;
         }
     }
 
-    /// <summary>
-    /// Алгоритм Рабина-Карпа
-    /// </summary>
+
     public class RabinKarpSubstringSearch : ISubstringSearch
     {
         private const int Base = 256; // Размер алфавита
-        private const int Prime = 101; // Простое число для хэширования
+        private const int Prime = 1_000_000_007; //было 101 // Простое число для хэширования
 
         public List<int> Search(string text, string pattern)
         {
@@ -536,10 +524,10 @@ How vexingly quick daft zebras jump!";
                 textHash = (Base * textHash + text[i]) % Prime;
             }
 
-            // Сканируем текст
+            // Сканер текста
             for (int i = 0; i <= n - m; i++)
             {
-                // Если хэши совпадают, проверяем посимвольно
+                // Проверка посимвольно если хэши совпадают
                 if (patternHash == textHash)
                 {
                     int j;
@@ -562,14 +550,12 @@ How vexingly quick daft zebras jump!";
                         textHash += Prime;
                 }
             }
-
             return result;
         }
     }
 
-    /// <summary>
-    /// Класс для хранения статистики о префиксах-суффиксах
-    /// </summary>
+
+    // Класс для хранения статистики о префиксах-суффиксах
     public class PrefixSuffixStats
     {
         public int CommonPrefixesCount { get; set; }
@@ -577,9 +563,8 @@ How vexingly quick daft zebras jump!";
         public double AverageCommonPrefixLength { get; set; }
     }
 
-    /// <summary>
-    /// Класс для хранения результатов эксперимента
-    /// </summary>
+
+    // Класс для хранения результатов эксперимента
     public class ExperimentResult
     {
         public string Name { get; set; }
