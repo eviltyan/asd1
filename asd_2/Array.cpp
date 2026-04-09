@@ -295,6 +295,7 @@ void Array::Print_Tree(Tree* node, int depth)
     }
 }
 
+// Подсчёт статистики
 void Array::Calculate_Statistics(Tree* node, bool is_root)
 {
     if (!node) return;
