@@ -25,6 +25,8 @@ List::List(std::string wrd)
 
     std::cout << std::endl << "ДЕРЕВО" << std::endl;
 
+    auto start_array_1 = std::chrono::high_resolution_clock::now();
+
     Tree* root = Create_Tree(-1);
 
     for (int i = 0; i < end; i++)
@@ -32,19 +34,51 @@ List::List(std::string wrd)
         Insert_Suffix(root, i, end);
     }
 
-    Print_Tree(root, 0);
+    auto end_array_1 = std::chrono::high_resolution_clock::now();
+    auto duration_array_1 = std::chrono::duration_cast<std::chrono::microseconds>(end_array_1 - start_array_1);
+
+    //Print_Tree(root, 0);
+
+    branching_count = 0;
+    internal_nodes_count = 0;
+    total_edges_sum = 0;
+
+    Calculate_Statistics(root);
+
+    std::cout << std::endl << "СТАТИСТИКА ДЕРЕВА" << std::endl;
+    std::cout << "Количество ветвлений: " << branching_count << std::endl;
+    if (branching_count == 0) branching_count = 1;
+    std::cout << "Cреднее число исходящих из вершины ребер: " << total_edges_sum / branching_count << std::endl;
 
     std::cout << std::endl << "НАЙДЕННЫЕ СУФФИКСЫ" << std::endl;
+
+    auto start_array_2 = std::chrono::high_resolution_clock::now();
 
     std::vector<std::string> suffixes;
     Find_Suffixes(root, "", suffixes);
 
+    auto end_array_2 = std::chrono::high_resolution_clock::now();
+    auto duration_array_2 = std::chrono::duration_cast<std::chrono::microseconds>(end_array_2 - start_array_2);
+
+    std::sort(suffixes.begin(), suffixes.end());
+    
     for (size_t i = 0; i < suffixes.size(); i++)
     {
         std::cout << "\"" << suffixes[i] << "\"" << std::endl;
     }
 
+    suffix_count = suffixes.size() + repeat;
+
+    std::cout << std::endl << "ВРЕМЯ ВЫПОЛНЕНИЯ" << std::endl;
+    std::cout << "Построение суффиксного дерева: " << duration_array_1.count() << " мкс" << std::endl;
+    std::cout << "Построение суффиксного массива: " << duration_array_2.count() << " мкс" << std::endl;
+
     Free_Tree(root);
+}
+
+int List::Get_Suffix_Count()
+{
+    return suffix_count;
 }
 
 
@@ -187,6 +221,7 @@ void List::Insert_Suffix(Tree* root, int start, int end)
         if (i == edge->end && j == end)
         {
             // Полное совпадение - суффикс уже существует
+            repeat++;
             return;
         }
         else if (i == edge->end)
@@ -199,10 +234,14 @@ void List::Insert_Suffix(Tree* root, int start, int end)
         else if (j == end)
         {
             // Суффикс закончился внутри ребра
-            // Разделяем ребро и помечаем промежуточный узел как лист
             int split_pos = i;
             Tree* split = Split_Edge(root, edge, split_pos);
-            split->number_leaf = ++count_leaf;
+
+            Tree* leaf = Create_Tree(++count_leaf);
+
+            Edge* empty_edge = Create_Edge(end, end, leaf);
+            Add_Edge(split, empty_edge);
+
             return;
         }
         else
@@ -297,6 +336,41 @@ void List::Print_Tree(Tree* node, int depth)
         {
             Print_Tree(edge->child, depth + 1);
         }
+    }
+}
+
+// Подсчёт статистики
+void List::Calculate_Statistics(Tree* node, bool is_root)
+{
+    if (!node) return;
+
+    int edge_count = 0;
+    Edge* edge = node->edge_begin;
+    while (edge)
+    {
+        edge_count++;
+        edge = edge->next;
+    }
+
+    if (!is_root && node->number_leaf == -1 && edge_count > 0)
+    {
+        internal_nodes_count++;
+        total_edges_sum += edge_count;
+
+        if (edge_count > 1)
+        {
+            branching_count++;
+        }
+    }
+
+    edge = node->edge_begin;
+    while (edge)
+    {
+        if (edge->child)
+        {
+            Calculate_Statistics(edge->child, false);
+        }
+        edge = edge->next;
     }
 }
 
