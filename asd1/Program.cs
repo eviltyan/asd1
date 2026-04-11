@@ -50,7 +50,7 @@ namespace SubstringSearchAlgorithms
 
             try
             {
-                string realText = GetTextFromFile("text.txt");
+                string realText = GetTextFromFile("tex.txt");
                 string realWord = "and";
 
                 Console.WriteLine("\nВведите слово для поиска в реальном тексте (по умолчанию 'and'):");
@@ -170,6 +170,7 @@ How vexingly quick daft zebras jump!";
             for (int n = 1000; n <= 10000; n += 1000)
             {
                 var text = GenerateString('a', n); // Худший случай
+                pattern = GenerateString('a', n / 10);
                 var result = RunExperiment($"Сложность O(n*m) n={n}", text, pattern);
                 results.Add(result);
 

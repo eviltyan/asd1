@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\projects\\source\\repos\\asd1\\asd1\\asd1.csproj",
+      "projectUniqueName": "E:\\projects\\asd\\asd1\\asd1\\asd1.csproj",
       "projectName": "asd1",
-      "projectPath": "E:\\projects\\source\\repos\\asd1\\asd1\\asd1.csproj",
+      "projectPath": "E:\\projects\\asd\\asd1\\asd1\\asd1.csproj",
       "packagesPath": "C:\\Users\\vlabu\\.nuget\\packages\\",
-      "outputPath": "E:\\projects\\source\\repos\\asd1\\asd1\\obj\\",
+      "outputPath": "E:\\projects\\asd\\asd1\\asd1\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "E:\\programs\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
