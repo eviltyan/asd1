@@ -1,0 +1,15 @@
+C:\Users\user\source\repos\asd1\asd1\bin\Debug\net9.0\asd1.exe
+C:\Users\user\source\repos\asd1\asd1\bin\Debug\net9.0\asd1.deps.json
+C:\Users\user\source\repos\asd1\asd1\bin\Debug\net9.0\asd1.runtimeconfig.json
+C:\Users\user\source\repos\asd1\asd1\bin\Debug\net9.0\asd1.dll
+C:\Users\user\source\repos\asd1\asd1\bin\Debug\net9.0\asd1.pdb
+C:\Users\user\source\repos\asd1\asd1\obj\Debug\net9.0\asd1.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\user\source\repos\asd1\asd1\obj\Debug\net9.0\asd1.AssemblyInfoInputs.cache
+C:\Users\user\source\repos\asd1\asd1\obj\Debug\net9.0\asd1.AssemblyInfo.cs
+C:\Users\user\source\repos\asd1\asd1\obj\Debug\net9.0\asd1.csproj.CoreCompileInputs.cache
+C:\Users\user\source\repos\asd1\asd1\obj\Debug\net9.0\asd1.sourcelink.json
+C:\Users\user\source\repos\asd1\asd1\obj\Debug\net9.0\asd1.dll
+C:\Users\user\source\repos\asd1\asd1\obj\Debug\net9.0\refint\asd1.dll
+C:\Users\user\source\repos\asd1\asd1\obj\Debug\net9.0\asd1.pdb
+C:\Users\user\source\repos\asd1\asd1\obj\Debug\net9.0\asd1.genruntimeconfig.cache
+C:\Users\user\source\repos\asd1\asd1\obj\Debug\net9.0\ref\asd1.dll

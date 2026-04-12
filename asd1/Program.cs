@@ -197,7 +197,30 @@ How vexingly quick daft zebras jump!";
             }
             return results;
         }
+        private List<ExperimentResult> DemonstrateComplexity1()
+        {
+            var results = new List<ExperimentResult>();
 
+            Console.WriteLine("\n=== Демонстрация сложности O(n*m) ===");
+
+            for (int n = 1000; n <= 10000; n += 1000)
+            {
+                int m = n / 20; // <-- ВОТ ГЛАВНОЕ ИЗМЕНЕНИЕ (m растёт вместе с n)
+
+                var text = GenerateString('a', n);      // худший случай
+                var pattern = GenerateString('a', m);   // теперь зависит от n
+
+                var result = RunExperiment($"O(n*m) n={n}, m={m}", text, pattern);
+                results.Add(result);
+
+                Console.WriteLine(
+                    $"n={n}, m={m}, naive={result.NaiveTimeMs:F2} мс, " +
+                    $"n*m={n * m}, отношение={result.NaiveTimeMs / (n * m / 1_000_000.0):F2}"
+                );
+            }
+
+            return results;
+        }
 
         private ExperimentResult RunExperiment(string name, string text, string pattern)
         {
@@ -347,20 +370,20 @@ How vexingly quick daft zebras jump!";
         {
             Console.WriteLine("\nРЕЗУЛЬТАТЫ ЭКСПЕРИМЕНТОВ\n");
 
-            Console.WriteLine(new string('═', 130));
-            Console.WriteLine($"║ {"Эксперимент",-30} ║ {"n",6} ║ {"m",6} ║ {"Naive",10} ║ {"KMP",10} ║ {"RK",10} ║ {"ускор.",10} ║");
-            Console.WriteLine(new string('═', 130));
+            Console.WriteLine(new string('═', 140));
+            Console.WriteLine($"║ {"Эксперимент",-30} ║ {"n",6} ║ {"m",6} ║ {"Naive",10} ║ {"KMP",10} ║ {"RK",10} ║ {"ускор.",10} ║ {"преф.",8} ║ {"ср.дл",8} ║ {"вхождения",10} ║");
+            Console.WriteLine(new string('═', 140));
 
             foreach (var r in results)
             {
                 double speedup = r.KMPTimeMs > 0 ? r.NaiveTimeMs / r.KMPTimeMs : 0;
 
                 Console.WriteLine(
-                    $"║ {Trim(r.Name, 30),-30} ║ {r.TextLength,6} ║ {r.PatternLength,6} ║ {r.NaiveTimeMs,10:F2} ║ {r.KMPTimeMs,10:F2} ║ {r.RabinKarpTimeMs,10:F2} ║ {speedup,10:F2} ║"
+                    $"║ {Trim(r.Name, 30),-30} ║ {r.TextLength,6} ║ {r.PatternLength,6} ║ {r.NaiveTimeMs,10:F2} ║ {r.KMPTimeMs,10:F2} ║ {r.RabinKarpTimeMs,10:F2} ║ {speedup,10:F2} ║ {r.CommonPrefixesCount,8} ║ {r.AverageCommonPrefixLength,8:F2} ║ {r.PatternOccurrences,10} ║"
                 );
             }
 
-            Console.WriteLine(new string('═', 130));
+            Console.WriteLine(new string('═', 140));
 
             Console.WriteLine("\nАНАЛИЗ:");
             foreach (var r in results)
