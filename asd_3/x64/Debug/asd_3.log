@@ -1,0 +1,7 @@
+﻿  asd_3.cpp
+D:\Университет\АиСД\asd_3\asd_3\asd_3.cpp(65,19): warning C4244: инициализация: преобразование "_Rep" в "unsigned int", возможна потеря данных
+D:\Университет\АиСД\asd_3\asd_3\asd_3.cpp(65,19): warning C4244:         with
+D:\Университет\АиСД\asd_3\asd_3\asd_3.cpp(65,19): warning C4244:         [
+D:\Университет\АиСД\asd_3\asd_3\asd_3.cpp(65,19): warning C4244:             _Rep=std::chrono::system_clock::rep
+D:\Университет\АиСД\asd_3\asd_3\asd_3.cpp(65,19): warning C4244:         ]
+  asd_3.vcxproj -> D:\Университет\АиСД\asd_3\x64\Debug\asd_3.exe
